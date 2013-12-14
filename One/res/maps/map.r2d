@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<r2dxml>
+    <type id="10" name="map.r2d">
+        <type id="3" name="entityCount">1</type>
+        <type id="10" name="entity_0">
+            <type id="9" name="repeatTex">false</type>
+            <type id="11" name="dim">
+                <x>64.0</x>
+                <y>64.0</y>
+            </type>
+            <type id="9" name="linearScaling">false</type>
+            <type id="3" name="componentCount">1</type>
+            <type id="5" name="rotation">0.0</type>
+            <type id="8" name="name">Player</type>
+            <type id="8" name="uuid">f6927c23-cba7-4c5e-a196-72cc1a205d99</type>
+            <type id="10" name="component_0">
+                <type id="8" name="southAnimation">res\anim\lard_south.anim</type>
+                <type id="8" name="className">Top Down Player</type>
+                <type id="8" name="uuid">1dff6756-9b9f-4ee9-86be-c2b8eda23ca0</type>
+                <type id="8" name="westAnimation">res\anim\lard_west.anim</type>
+                <type id="8" name="northAnimation">res\anim\lard_north.anim</type>
+            </type>
+            <type id="10" name="material">
+                <type id="5" name="Alpha">1.0</type>
+                <type id="8" name="Animation">res\anim\lard_south.anim</type>
+                <type id="3" name="Color">-1</type>
+                <type id="1" name="RenderType">2</type>
+            </type>
+            <type id="11" name="pos">
+                <x>0.0</x>
+                <y>0.0</y>
+            </type>
+        </type>
+    </type>
+</r2dxml>
