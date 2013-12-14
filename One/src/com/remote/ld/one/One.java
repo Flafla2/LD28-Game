@@ -2,6 +2,7 @@ package com.remote.ld.one;
 
 import com.esotericsoftware.minlog.Log;
 import com.remote.ld.one.component.ComponentPlayer;
+import com.remote.ld.one.component.ComponentProjectile;
 import com.remote.ld.one.gui.GuiInGameOne;
 import com.remote.ld.one.gui.GuiMainMenu;
 import com.remote.remote2d.engine.Remote2D;
@@ -24,6 +25,7 @@ public class One extends Remote2DGame {
 		Fonts.add("Fipps","res/fonts/Fipps-Regular.otf",false);
 		
 		InsertableComponentList.addInsertableComponent("Player", ComponentPlayer.class);
+		InsertableComponentList.addInsertableComponent("Projectile", ComponentProjectile.class);
 		
 		Remote2D.guiList.push(new GuiMainMenu());
 	}
