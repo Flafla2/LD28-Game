@@ -1,9 +1,15 @@
 package com.remote.ld.one;
 
+import com.esotericsoftware.minlog.Log;
+import com.remote.ld.one.component.ComponentPlayer;
+import com.remote.ld.one.gui.GuiInGameOne;
 import com.remote.ld.one.gui.GuiMainMenu;
 import com.remote.remote2d.engine.Remote2D;
 import com.remote.remote2d.engine.Remote2DGame;
 import com.remote.remote2d.engine.art.Fonts;
+import com.remote.remote2d.engine.entity.InsertableComponentList;
+import com.remote.remote2d.engine.gui.GuiMenu;
+import com.remote.remote2d.engine.world.Map;
 
 public class One extends Remote2DGame {
 	
@@ -14,8 +20,18 @@ public class One extends Remote2DGame {
 
 	@Override
 	public void initGame() {
+		Log.DEBUG();
 		Fonts.add("Fipps","res/fonts/Fipps-Regular.otf",false);
+		
+		InsertableComponentList.addInsertableComponent("Player", ComponentPlayer.class);
+		
 		Remote2D.guiList.push(new GuiMainMenu());
+	}
+	
+	@Override
+	public GuiMenu getNewInGameGui(Map map)
+	{
+		return new GuiInGameOne(map);
 	}
 	
 }
