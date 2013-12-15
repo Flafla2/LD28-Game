@@ -3,6 +3,7 @@ package com.remote.ld.one.component;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.remote.remote2d.engine.art.Renderer;
 import com.remote.remote2d.engine.entity.Entity;
 import com.remote.remote2d.engine.entity.component.Component;
 import com.remote.remote2d.engine.io.R2DFileUtility;
@@ -10,18 +11,19 @@ import com.remote.remote2d.engine.logic.Vector2;
 
 public class ComponentEnemy extends Component {
 	
-	private static final int FRONT_LINE_OF_SIGHT = 500;
-	private static final int BACK_LINE_OF_SIGHT = 100;
-	private static final int PURSUIT_LINE_OF_SIGHT = 1000;
+	private static final int FRONT_LINE_OF_SIGHT = 800;
+	private static final int BACK_LINE_OF_SIGHT = 350;
+	private static final int PURSUIT_LINE_OF_SIGHT = 1500;
 	private static final int FIRING_DISTANCE_GAMEBOX = 500;
 	private static final int FIRING_DISTANCE_CONSOLE = 300;
-	private static final int MINIMUM_DISTANCE_TO_PLAYER = 50;
+	private static final int MINIMUM_DISTANCE_TO_PLAYER = 200;
 	private static final Random random = new Random();
 
 	public Vector2 environmentAcceleration = new Vector2(0,10);
 	public String consolePrefab;
 	public String gamePrefab;
 	public Entity player;
+	public boolean debug = false;
 	
 	private Vector2 velocity = new Vector2(0,0);
 	private boolean consoleR2DExists = false;
@@ -33,9 +35,6 @@ public class ComponentEnemy extends Component {
 	private long waitIdleWalk = 1000;
 	private Vector2 lastCorrection = new Vector2(0,0);
 	private EnemyState state = EnemyState.IDLE;
-	/**
-	 * 1 is right, -1 is left
-	 */
 	private byte direction = 1;
 	private boolean pursuit = false;
 
@@ -57,7 +56,15 @@ public class ComponentEnemy extends Component {
 
 	@Override
 	public void renderBefore(boolean editor, float interpolation) {
-		
+		if(debug)
+		{
+			int leftside = direction < 0 ? FRONT_LINE_OF_SIGHT : BACK_LINE_OF_SIGHT;
+			Renderer.drawRect(new Vector2(entity.pos.x+entity.dim.x/2-leftside,entity.pos.y), new Vector2(FRONT_LINE_OF_SIGHT+BACK_LINE_OF_SIGHT,entity.dim.y), 0x00ff00, 0.4f);
+			int leftfire = direction < 0 ? FIRING_DISTANCE_GAMEBOX : 0;
+			Renderer.drawRect(new Vector2(entity.pos.x+entity.dim.x/2-leftfire,entity.pos.y), new Vector2(FIRING_DISTANCE_GAMEBOX,entity.dim.y), 0xff0000, 0.4f);
+			int leftfirecon = direction < 0 ? FIRING_DISTANCE_CONSOLE : 0;
+			Renderer.drawRect(new Vector2(entity.pos.x+entity.dim.x/2-leftfirecon,entity.pos.y), new Vector2(FIRING_DISTANCE_CONSOLE,entity.dim.y), 0x0000ff, 0.4f);
+		}
 	}
 
 	@Override
@@ -68,7 +75,7 @@ public class ComponentEnemy extends Component {
 		
 		velocity.x = 0;
 		if(state == EnemyState.WALK)
-			velocity.x = 20*direction;
+			velocity.x = 10*direction;
 		
 		if(!lastCorrection.equals(new Vector2(0,0)) && grounded)
 			velocity.y = -60;
@@ -156,24 +163,24 @@ public class ComponentEnemy extends Component {
 				proj = map.getEntityList().instantiatePrefab(consolePrefab);
 				state = EnemyState.WALK;
 				lastAttack = System.currentTimeMillis();
-				waitAttack = random.nextInt(2000)+500;
+				waitAttack = random.nextInt(1000)+500;
 			} else if(gameR2DExists && firingDistance_game)
 			{
 				proj = map.getEntityList().instantiatePrefab(gamePrefab);
 				state = EnemyState.WALK;
 				lastAttack = System.currentTimeMillis();
-				waitAttack = random.nextInt(2000)+500;
+				waitAttack = random.nextInt(500)+500;
 			}
 			
 			if(proj != null)
 			{
-				if(direction >= 0)
+				if(direction < 0)
 					proj.pos.x = entity.pos.x-proj.dim.x;
 				else
 					proj.pos.x = entity.pos.x+entity.dim.x;
 				
 				proj.pos.y = entity.pos.y;
-				ArrayList<ComponentProjectile> comps = entity.getComponentsOfType(ComponentProjectile.class);
+				ArrayList<ComponentProjectile> comps = proj.getComponentsOfType(ComponentProjectile.class);
 				if(comps.size()>0)
 					comps.get(0).velocity.x = Math.abs(comps.get(0).velocity.x)*direction;
 			}
