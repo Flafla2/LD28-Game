@@ -15,6 +15,9 @@ import com.remote.remote2d.engine.world.Map;
 
 public class One extends Remote2DGame {
 	
+	public static final float CONSOLE_COST = 499.99f;
+	public static final float GAME_COST = 69.99f;
+	
 	public static void main(String[] args)
 	{
 		Remote2D.startRemote2D(new One());

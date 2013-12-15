@@ -15,10 +15,11 @@ public class GuiMainMenu extends GuiMenu {
 	private String message = "";
 	private long lastMessageTime = -1;
 	
+	
 	public GuiMainMenu()
 	{
 		super();
-		backgroundColor = 0x99ccff;
+		backgroundColor = 0x660000;
 	}
 	
 	@Override
@@ -27,6 +28,8 @@ public class GuiMainMenu extends GuiMenu {
 		if(System.currentTimeMillis()-lastMessageTime < 5000)
 			Fonts.get("Fipps").drawCenteredString(message, screenHeight()-20, 20, 0x000000);
 		
+		int imgsize = Math.min(screenWidth(), screenHeight());
+		Renderer.drawRect(new Vector2(screenWidth()/2-imgsize/2,screenHeight()/2-imgsize/2), new Vector2(imgsize), ArtList.menacing_santa, 0xccaaaa, 1);
 		Renderer.pushMatrix();
 		Renderer.translate(new Vector2(10,screenHeight()/2-104));
 		Fonts.get("Fipps").drawString("YOU ONLY GET", 0, 0, 40, 0x000000);

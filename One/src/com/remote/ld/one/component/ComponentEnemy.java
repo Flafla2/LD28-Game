@@ -3,6 +3,7 @@ package com.remote.ld.one.component;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.remote.remote2d.engine.art.Animation;
 import com.remote.remote2d.engine.art.Renderer;
 import com.remote.remote2d.engine.entity.Entity;
 import com.remote.remote2d.engine.entity.component.Component;
@@ -25,6 +26,14 @@ public class ComponentEnemy extends Component {
 	public Entity player;
 	public boolean debug = false;
 	
+	public float health = 50;
+	
+	public Vector2 colliderPos = new Vector2(0,0);
+	public Vector2 colliderDim = new Vector2(10,10);
+	
+	public Animation walkAnim;
+	public Animation throwAnim;
+	
 	private Vector2 velocity = new Vector2(0,0);
 	private boolean consoleR2DExists = false;
 	private boolean gameR2DExists = false;
@@ -37,6 +46,9 @@ public class ComponentEnemy extends Component {
 	private EnemyState state = EnemyState.IDLE;
 	private byte direction = 1;
 	private boolean pursuit = false;
+	private boolean dead = false;
+	private long deadTimer = -1;
+	private int blinknumber = -1;
 
 	@Override
 	public void init() {
@@ -65,10 +77,29 @@ public class ComponentEnemy extends Component {
 			int leftfirecon = direction < 0 ? FIRING_DISTANCE_CONSOLE : 0;
 			Renderer.drawRect(new Vector2(entity.pos.x+entity.dim.x/2-leftfirecon,entity.pos.y), new Vector2(FIRING_DISTANCE_CONSOLE,entity.dim.y), 0x0000ff, 0.4f);
 		}
+		
+		if(editor)
+			colliderPos.add(entity.pos).getColliderWithDim(colliderDim).drawCollider(0x00ff00);
 	}
 
 	@Override
 	public void tick(int i, int j, int k) {
+		if(dead)
+		{
+			long timepassed = System.currentTimeMillis()-deadTimer;
+			if(timepassed > 2000)
+				map.getEntityList().removeEntityFromList(entity);
+			if(timepassed > 1000 && timepassed/100 > blinknumber)
+			{
+				blinknumber = (int) (timepassed/100);
+				if(entity.material.getAlpha() > 0)
+					entity.material.setAlpha(0);
+				else
+					entity.material.setAlpha(1);
+			}
+			entity.rotation = 90;
+			return;
+		}
 		decide();
 		
 		velocity = velocity.add(environmentAcceleration);
@@ -80,11 +111,20 @@ public class ComponentEnemy extends Component {
 		if(!lastCorrection.equals(new Vector2(0,0)) && grounded)
 			velocity.y = -60;
 		
-		Vector2 correction = map.getCorrection(entity.getPosGlobal().getColliderWithDim(entity.dim), velocity);
+		Vector2 correction = map.getCorrection(colliderPos.add(entity.pos).getColliderWithDim(colliderDim), velocity);
 		velocity = velocity.add(correction);
 		grounded = velocity.y == 0 && correction.y != 0;
 		entity.pos = entity.pos.add(velocity);
-			
+		
+		if(entity.material.getAnimation() == null || (state != EnemyState.ATTACK && !entity.material.getAnimation().equals(walkAnim)))
+			entity.material.setAnimation(walkAnim);
+		else if(state == EnemyState.ATTACK && !entity.material.getAnimation().equals(throwAnim))
+			entity.material.setAnimation(throwAnim);
+		
+		entity.material.getAnimation().flippedX = direction < 0;
+		entity.material.getAnimation().animate = state != EnemyState.IDLE;
+		if(state == EnemyState.IDLE)
+			entity.material.getAnimation().setCurrentFrame(0);
 	}
 
 	@Override
@@ -185,6 +225,16 @@ public class ComponentEnemy extends Component {
 					comps.get(0).velocity.x = Math.abs(comps.get(0).velocity.x)*direction;
 			}
 			break;
+		}
+	}
+	
+	public void hurt(float damage)
+	{
+		health -= damage;
+		if(health <= 0)
+		{
+			dead = true;
+			deadTimer = System.currentTimeMillis();
 		}
 	}
 	
