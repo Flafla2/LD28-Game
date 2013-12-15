@@ -7,6 +7,7 @@ public class ComponentProjectile extends Component {
 	
 	public Vector2 environmentAcceleration = new Vector2(0,10);
 	public Vector2 velocity = new Vector2(0,0);
+	public boolean enemy = false;
 	private boolean grounded = false;
 	private long groundedTimer = -1;
 	private int blinknumber = -1;
