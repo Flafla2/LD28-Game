@@ -2,6 +2,8 @@ package com.remote.ld.one;
 
 import com.esotericsoftware.minlog.Log;
 import com.remote.ld.one.component.ComponentEnemy;
+import com.remote.ld.one.component.ComponentFinish;
+import com.remote.ld.one.component.ComponentMoney;
 import com.remote.ld.one.component.ComponentPlayer;
 import com.remote.ld.one.component.ComponentProjectile;
 import com.remote.ld.one.gui.GuiInGameOne;
@@ -31,6 +33,8 @@ public class One extends Remote2DGame {
 		InsertableComponentList.addInsertableComponent("Player", ComponentPlayer.class);
 		InsertableComponentList.addInsertableComponent("Projectile", ComponentProjectile.class);
 		InsertableComponentList.addInsertableComponent("Enemy", ComponentEnemy.class);
+		InsertableComponentList.addInsertableComponent("Money", ComponentMoney.class);
+		InsertableComponentList.addInsertableComponent("Finish", ComponentFinish.class);
 		
 		Remote2D.guiList.push(new GuiMainMenu());
 	}

@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.remote.ld.one.gui.GuiDead;
 import com.remote.ld.one.gui.GuiInGameOne;
+import com.remote.remote2d.engine.AudioHandler;
 import com.remote.remote2d.engine.Remote2D;
 import com.remote.remote2d.engine.art.Animation;
 import com.remote.remote2d.engine.art.Renderer;
@@ -23,6 +24,7 @@ public class ComponentPlayer extends Component {
 		
 	public Vector2 environmentAcceleration = new Vector2(0,10);
 	public String xboxPrefab;
+	public String gamePrefab;
 	
 	public int levelLeft = 0;
 	public int levelRight = 1000;
@@ -33,9 +35,13 @@ public class ComponentPlayer extends Component {
 	public Animation walkAnim;
 	public Animation throwAnim;
 	
+	public static final float CONSOLE_COST = 499.99f;
+	public static final float GAME_COST = 69.99f;
+	
 	private Vector2 velocity = new Vector2(0,0);
 	private long lastThrow = -1;
-	private boolean r2DExists = false;
+	private boolean xboxExists = false;
+	private boolean gameExists = false;
 	private boolean grounded = false;
 	private int direction = 1;
 
@@ -46,12 +52,15 @@ public class ComponentPlayer extends Component {
 
 	@Override
 	public void onEntitySpawn() {
-		r2DExists = R2DFileUtility.R2DExists(xboxPrefab);
+		xboxExists = R2DFileUtility.R2DExists(xboxPrefab);
+		gameExists = R2DFileUtility.R2DExists(gamePrefab);
 		GuiInGameOne.health = health;
 	}
 
 	@Override
 	public void renderAfter(boolean editor, float interpolation) {
+		if(!editor)
+			return;
 		GL11.glLineWidth(5);
         
         Renderer.drawLine(new Vector2(levelLeft, entity.pos.y), new Vector2(levelLeft,entity.pos.y+entity.dim.y), 0x000ff, 1.0f);
@@ -59,8 +68,7 @@ public class ComponentPlayer extends Component {
         
 		GL11.glLineWidth(1);
 		
-		if(editor)
-			colliderPos.add(entity.pos).getColliderWithDim(colliderDim).drawCollider(0x00ff00);
+		colliderPos.add(entity.pos).getColliderWithDim(colliderDim).drawCollider(0x00ff00);
 	}
 
 	@Override
@@ -89,7 +97,10 @@ public class ComponentPlayer extends Component {
 			direction = 1;
 		
 		if(space && grounded)
+		{
+			AudioHandler.playSound("res/sound/jump.wav", false, false);
 			velocity.y = -60;
+		}
 		
 		Vector2 correction = map.getCorrection(colliderPos.add(entity.pos).getColliderWithDim(colliderDim), velocity);
 		velocity = velocity.add(correction);
@@ -104,10 +115,20 @@ public class ComponentPlayer extends Component {
         	renderarea.pos.x = levelRight-renderarea.dim.x;
         map.camera.pos = renderarea.pos.add(map.camera.getDimensions().divide(new Vector2(2)));
         map.camera.updatePos();
+        
+        if(Keyboard.isKeyDown(Keyboard.KEY_1))
+        	GuiInGameOne.currentWeapon = 1;
+        else if(Keyboard.isKeyDown(Keyboard.KEY_2))
+        	GuiInGameOne.currentWeapon = 0;
 		
-		if(mouse && r2DExists)
+		if(mouse && exists() && hasMoney())
 		{
-			Entity e = map.getEntityList().instantiatePrefab(xboxPrefab);
+			Entity e;
+			if(GuiInGameOne.currentWeapon == 0)
+				e = map.getEntityList().instantiatePrefab(xboxPrefab);
+			else
+				e = map.getEntityList().instantiatePrefab(gamePrefab);
+			spendMoney();
 			ArrayList<ComponentProjectile> proj = e.getComponentsOfType(ComponentProjectile.class);
 			if(direction > 0)
 			{
@@ -120,7 +141,9 @@ public class ComponentPlayer extends Component {
 				proj.get(0).velocity.x = -Math.abs(proj.get(0).velocity.x);
 			}
 			lastThrow = System.currentTimeMillis();
-		}
+			AudioHandler.playSound("res/sound/throw.wav", false, false);
+		} else if(mouse && !hasMoney() && exists())
+			AudioHandler.playSound("res/sound/no_shoot.wav", false, false);
 		
 		if(System.currentTimeMillis()-lastThrow < 500 && !entity.material.getAnimation().getPath().equals(throwAnim.getPath()))
 			entity.material.setAnimation(throwAnim);
@@ -142,12 +165,46 @@ public class ComponentPlayer extends Component {
 			
 	}
 	
+	public boolean exists()
+	{
+		if(GuiInGameOne.currentWeapon == 0)
+			return xboxExists;
+		else
+			return gameExists;
+	}
+	
+	public boolean hasMoney()
+	{
+		if(GuiInGameOne.currentWeapon == 0)
+			return money >= CONSOLE_COST;
+		else
+			return money >= GAME_COST;
+	}
+	
+	public void spendMoney()
+	{
+		if(GuiInGameOne.currentWeapon == 0)
+			money -= CONSOLE_COST;
+		else
+			money -= GAME_COST;
+	}
+	
 	public void hurt(float damage)
 	{
 		health -= damage;
 		if(health <= 0)
 			Remote2D.guiList.push(new GuiDead());
 		GuiInGameOne.health = health;
+		
+		AudioHandler.playSound("res/sound/hurt.wav", false, false);
+	}
+	
+	public void addMoney(float money)
+	{
+		this.money += money;
+		GuiInGameOne.money = this.money;
+		
+		AudioHandler.playSound("res/sound/Pickup_coin.wav", false, false);
 	}
 
 	@Override

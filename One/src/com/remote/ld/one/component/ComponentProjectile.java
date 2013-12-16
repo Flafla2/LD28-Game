@@ -13,6 +13,8 @@ public class ComponentProjectile extends Component {
 	public Vector2 velocity = new Vector2(0,0);
 	public float damage = 10;
 	public boolean enemy = false;
+	public Vector2 colliderPos;
+	public Vector2 colliderDim;
 	private boolean grounded = false;
 	private boolean despawn = false;
 	
@@ -30,12 +32,13 @@ public class ComponentProjectile extends Component {
 	}
 
 	@Override
-	public void renderAfter(boolean arg0, float arg1) {
-		
+	public void renderAfter(boolean editor, float interpolation) {
+		if(editor)
+			colliderPos.add(entity.pos).getColliderWithDim(colliderDim).drawCollider(0x00ff00);
 	}
 
 	@Override
-	public void renderBefore(boolean arg0, float arg1) {
+	public void renderBefore(boolean editor, float interpolation) {
 		
 	}
 
@@ -58,7 +61,7 @@ public class ComponentProjectile extends Component {
 		if(grounded)
 			return;
 		velocity = velocity.add(environmentAcceleration);
-		Vector2 correction = map.getCorrection(entity.pos.getColliderWithDim(entity.dim), velocity);
+		Vector2 correction = map.getCorrection(entity.pos.add(colliderPos).getColliderWithDim(colliderDim), velocity);
 		velocity = velocity.add(correction);
 		grounded = velocity.y == 0 && correction.y != 0;
 		if(grounded)
@@ -82,7 +85,7 @@ public class ComponentProjectile extends Component {
 				if(comps.size() > 0)
 				{
 					ColliderBox coll = comps.get(0).colliderPos.add(e.pos).getColliderWithDim(comps.get(0).colliderDim);
-					if(entity.getPosGlobal().getColliderWithDim(entity.dim).getCollision(coll, new Vector2(0,0)).collides)
+					if(entity.pos.add(colliderPos).getColliderWithDim(colliderDim).getCollision(coll, new Vector2(0,0)).collides)
 					{
 						comps.get(0).hurt(damage);
 						velocity.x *= -1;
@@ -96,7 +99,7 @@ public class ComponentProjectile extends Component {
 				if(comps.size() > 0)
 				{
 					ColliderBox coll = comps.get(0).colliderPos.add(e.pos).getColliderWithDim(comps.get(0).colliderDim);
-					if(entity.getPosGlobal().getColliderWithDim(entity.dim).getCollision(coll, new Vector2(0,0)).collides)
+					if(entity.pos.add(colliderPos).getColliderWithDim(colliderDim).getCollision(coll, new Vector2(0,0)).collides)
 					{
 						comps.get(0).hurt(damage);
 						velocity.x *= -1;

@@ -34,6 +34,8 @@ public class ComponentEnemy extends Component {
 	public Animation walkAnim;
 	public Animation throwAnim;
 	
+	public String moneyPrefab;
+	
 	private Vector2 velocity = new Vector2(0,0);
 	private boolean consoleR2DExists = false;
 	private boolean gameR2DExists = false;
@@ -87,9 +89,15 @@ public class ComponentEnemy extends Component {
 		if(dead)
 		{
 			long timepassed = System.currentTimeMillis()-deadTimer;
-			if(timepassed > 2000)
+			if(timepassed > 1000)
+			{
+				if(R2DFileUtility.R2DExists(moneyPrefab))
+					map.getEntityList().instantiatePrefab(moneyPrefab, map.getEntityList().indexOf(entity)).pos = entity.pos.add(entity.dim.divide(new Vector2(2)));
 				map.getEntityList().removeEntityFromList(entity);
-			if(timepassed > 1000 && timepassed/100 > blinknumber)
+				entity = null;
+				return;
+			}
+			if(timepassed > 500 && timepassed/100 > blinknumber)
 			{
 				blinknumber = (int) (timepassed/100);
 				if(entity.material.getAlpha() > 0)
@@ -200,13 +208,13 @@ public class ComponentEnemy extends Component {
 			Entity proj = null;
 			if(consoleR2DExists && firingDistance_console)
 			{
-				proj = map.getEntityList().instantiatePrefab(consolePrefab);
+				proj = map.getEntityList().instantiatePrefab(consolePrefab,map.getEntityList().indexOf(entity));
 				state = EnemyState.WALK;
 				lastAttack = System.currentTimeMillis();
 				waitAttack = random.nextInt(1000)+500;
 			} else if(gameR2DExists && firingDistance_game)
 			{
-				proj = map.getEntityList().instantiatePrefab(gamePrefab);
+				proj = map.getEntityList().instantiatePrefab(gamePrefab,map.getEntityList().indexOf(entity));
 				state = EnemyState.WALK;
 				lastAttack = System.currentTimeMillis();
 				waitAttack = random.nextInt(500)+500;
