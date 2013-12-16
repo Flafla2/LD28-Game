@@ -8,7 +8,9 @@ import com.remote.remote2d.engine.art.Fonts;
 import com.remote.remote2d.engine.art.Renderer;
 import com.remote.remote2d.engine.gui.GuiButton;
 import com.remote.remote2d.engine.gui.GuiMenu;
+import com.remote.remote2d.engine.io.R2DFileManager;
 import com.remote.remote2d.engine.logic.Vector2;
+import com.remote.remote2d.engine.world.Map;
 
 public class GuiMainMenu extends GuiMenu {
 	
@@ -45,8 +47,9 @@ public class GuiMainMenu extends GuiMenu {
 		int width = Math.max(screenWidth()/2,200);
 		int xpos = screenWidth()-width;
 		
-		buttonList.add(new GuiButton(0,new Vector2(xpos,screenHeight()/2-70),new Vector2(width,40),"Play"));
-		buttonList.add(new GuiButton(1,new Vector2(xpos,screenHeight()/2-20),new Vector2(width,40),"Open Editor"));
+		buttonList.add(new GuiButton(0,new Vector2(xpos,screenHeight()/2-70),new Vector2(width/2,40),"Level 1 (Nintendo)"));
+		buttonList.add(new GuiButton(3,new Vector2(xpos+width/2,screenHeight()/2-70),new Vector2(width/2,40),"Level 2 (Sony)"));
+		buttonList.add(new GuiButton(1,new Vector2(xpos,screenHeight()/2-20),new Vector2(width,40),"Open Remote2D Editor (VERY BUGGY!)"));
 		buttonList.add(new GuiButton(2,new Vector2(xpos,screenHeight()/2+30),new Vector2(width,40),"Exit"));
 	}
 	
@@ -61,11 +64,23 @@ public class GuiMainMenu extends GuiMenu {
 	public void actionPerformed(GuiButton button)
 	{
 		if(button.id == 0)
-			setMessage("Playing isn't supported ;P");
+		{
+			Map map = new Map();
+			R2DFileManager file = new R2DFileManager("res/maps/level1.r2d",map);
+			file.read();
+			Remote2D.guiList.push(new GuiInGameOne(map));
+		}
 		else if(button.id == 1)
 			Remote2D.guiList.push(new GuiEditor());
 		else if(button.id == 2)
 			Remote2D.running = false;
+		else if(button.id == 3)
+		{
+			Map map = new Map();
+			R2DFileManager file = new R2DFileManager("res/maps/level2.r2d",map);
+			file.read();
+			Remote2D.guiList.push(new GuiInGameOne(map));
+		}
 	}
 	
 	@Override

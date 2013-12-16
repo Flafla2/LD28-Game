@@ -108,6 +108,7 @@ public class ComponentEnemy extends Component {
 			entity.rotation = 90;
 			return;
 		}
+		EnemyState beforeState = state;
 		decide();
 		
 		velocity = velocity.add(environmentAcceleration);
@@ -124,9 +125,9 @@ public class ComponentEnemy extends Component {
 		grounded = velocity.y == 0 && correction.y != 0;
 		entity.pos = entity.pos.add(velocity);
 		
-		if(entity.material.getAnimation() == null || (state != EnemyState.ATTACK && !entity.material.getAnimation().equals(walkAnim)))
+		if(entity.material.getAnimation() == null || (state != EnemyState.ATTACK && state != beforeState))
 			entity.material.setAnimation(walkAnim);
-		else if(state == EnemyState.ATTACK && !entity.material.getAnimation().equals(throwAnim))
+		else if(state == EnemyState.ATTACK && state != beforeState)
 			entity.material.setAnimation(throwAnim);
 		
 		entity.material.getAnimation().flippedX = direction < 0;

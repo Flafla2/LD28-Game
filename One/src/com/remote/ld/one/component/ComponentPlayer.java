@@ -1,5 +1,6 @@
 package com.remote.ld.one.component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 import org.lwjgl.input.Keyboard;
@@ -55,6 +56,7 @@ public class ComponentPlayer extends Component {
 		xboxExists = R2DFileUtility.R2DExists(xboxPrefab);
 		gameExists = R2DFileUtility.R2DExists(gamePrefab);
 		GuiInGameOne.health = health;
+		GuiInGameOne.money = money;
 	}
 
 	@Override
@@ -187,6 +189,7 @@ public class ComponentPlayer extends Component {
 			money -= CONSOLE_COST;
 		else
 			money -= GAME_COST;
+		GuiInGameOne.money = round(this.money,2);
 	}
 	
 	public void hurt(float damage)
@@ -194,15 +197,21 @@ public class ComponentPlayer extends Component {
 		health -= damage;
 		if(health <= 0)
 			Remote2D.guiList.push(new GuiDead());
-		GuiInGameOne.health = health;
+		GuiInGameOne.health = round(health,2);
 		
 		AudioHandler.playSound("res/sound/hurt.wav", false, false);
 	}
 	
+	public static float round(float d, int decimalPlace) {
+        BigDecimal bd = new BigDecimal(Float.toString(d));
+        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+        return bd.floatValue();
+    }
+	
 	public void addMoney(float money)
 	{
 		this.money += money;
-		GuiInGameOne.money = this.money;
+		GuiInGameOne.money = round(this.money,2);
 		
 		AudioHandler.playSound("res/sound/Pickup_coin.wav", false, false);
 	}
